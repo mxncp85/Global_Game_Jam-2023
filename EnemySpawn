@@ -76,8 +76,8 @@ Client.OnStart = function()
 				end
 			end
 		end
-		setEnemyGroupList("House", Number3(1, 1, 1), 1)
-		setEnemyGroupList("Garden", Number3(2, 2, 2), 2)
+		setEnemyGroupList("House", Number3(0, 0, 0), 1)
+		setEnemyGroupList("Garden", Number3(58, 6, 70), 2)
 		setEnemyGroupList("Street", Number3(-1, -1, -1), 2)
 		setEnemyGroupList("Tree", Number3(-2, -2, -2), 3)
 	end
@@ -94,7 +94,10 @@ Client.OnStart = function()
 			enemy.life = 1
 			enemy.damage = 1
 			enemy.speed = 1
-			enemy.pos = Number3(enemyGroupList[gid].pos.X + i, enemyGroupList[gid].pos.Y + i, enemyGroupList[gid].pos.Z + i)
+			enemy.Position = Number3(enemyGroupList[gid].pos.X + i * 25, enemyGroupList[gid].pos.Y + 1, enemyGroupList[gid].pos.Z + i * 25)
+			enemy.Scale = 1
+			enemy.CollisionGroups = 2
+			World:AddChild(enemy)
 			table.insert(enemyGroupList[gid].enemyList, enemy)
 		end
 	end
@@ -142,19 +145,32 @@ Client.OnStart = function()
 	setEnemy("Tree", 2, "Termite Soldier")
 	setEnemy("Tree", 3, "Termite Soldier")
 	print(enemyGroupList[1].name)
+	print("Enemy's List :")
 	print(enemyGroupList[1].enemyList[1].name)
 	print(enemyGroupList[1].enemyList[1].damage)
+	print("Localisation enemy spawn :")
+	print(enemyGroupList[1].pos.X)
+	print(enemyGroupList[1].pos.Y)
+	print(enemyGroupList[1].pos.Z)
+	print("Localisation enemy :")
+	print(enemyGroupList[1].enemyList[1].pos.X)
+	print(enemyGroupList[1].enemyList[1].pos.Y)
+	print(enemyGroupList[1].enemyList[1].pos.Z)
 end
 
 Client.Tick = function(dt)
     -- Game loop, executed ~30 times per second on each client.
-
+	if timecount == 30 then
+		time = time + 1
+		timecount = 0
+	end
     -- Detect if player is falling,
     -- drop it above the map when it happens.
     if Player.Position.Y < -500 then
         dropPlayer()
         Player:TextBubble("💀 Oops!")
     end
+	timecount = timecount + 1
 end
 
 -- jump function, triggered with Action1
@@ -169,10 +185,5 @@ end
 --
 
 Server.Tick = function(dt)
-	if timecount == 30 then
-		time = time + 1
-		timecount = 0
-	end
-    timecount = timecount + 1
     -- Server game loop, executed ~30 times per second on the server.
 end
