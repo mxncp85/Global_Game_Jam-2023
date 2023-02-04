@@ -12,25 +12,40 @@ Client.OnStart = function()
 	monsters = {} -- no monsters at start
 	killedMonsters = {} -- recycle bin
 
-    --\\\\\\\\\\\\\\--
-    --to help understand how the movements works
-    function spawnMonster()
+    function collides(shape)
 		
-		local delta = Number3(math.random(kMonsterSpawnMinDistance, kMonsterSpawnMaxDistance), 0, math.random(kMonsterSpawnMinDistance, kMonsterSpawnMaxDistance))
-		delta:Rotate(Number3(0, math.random() * math.pi * 2, 0))
+		local playerMin = Number3(Player.Position.X - kPlayerHalfWidth,
+								  Player.Position.Y,
+								  Player.Position.Z - kPlayerHalfDepth)
 
-		local monster = Shape(Items.olivbleu.termite)
-		monster.Scale = 2
-		monster.Physics = true
-		monster.Pivot = {monster.Width * 0.5, 0, monster.Depth * 0.5}
-		monster.Position = Player.Position + delta + Number3(0, kMonsterSpawnHeight, 0)
-		monster.Rotation = {0, math.pi, 0}
+		local playerMax = Number3(Player.Position.X + kPlayerHalfWidth,
+								  Player.Position.Y + kPlayerHeight,
+								  Player.Position.Z + kPlayerHalfDepth)
 
-		World:AddChild(monster)
+		local halfSize = (shape.Width > shape.Depth
+						 and shape.Width * 0.5
+						 or shape.Depth * 0.5) * shape.LocalScale.X
 
-		table.insert(monsters, monster)
+		local shapeMin = Number3(shape.Position.X - halfSize,
+								 shape.Position.Y,
+								 shape.Position.Z - halfSize)
+
+		local shapeMax = Number3(shape.Position.X + halfSize,
+								 shape.Position.Y + shape.Height * shape.LocalScale.X,
+								 shape.Position.Z + halfSize)
+
+		if playerMax.X > shapeMin.X and
+		   playerMin.X < shapeMax.X and
+		   playerMax.Y > shapeMin.Y and
+		   playerMin.Y < shapeMax.Y and
+		   playerMax.Z > shapeMin.Z and
+		   playerMin.Z < shapeMax.Z then
+
+		   	return true
+		end
+
+		return false
 	end
-    --//////////////--
 end
 
 Client.Tick = function(dt)
