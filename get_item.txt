@@ -23,8 +23,8 @@ Client.Action3 = function()
 		end
 		equipped = impact.Object
 		equipped:SetParent(Player.RightHand)
-		equipped.Rotation.X = math.pi / 1.5
-		equipped.LocalPosition = {5, 8, 8}
+		equipped.LocalRotation.X = math.pi / 1.5
+		equipped.LocalPosition = {4, 2.5, 7}
 		equipped.CollisionGroups = nil
 		equipped.Scale = 1
 		equipped.CollidesWithGroups = nil
