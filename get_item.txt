@@ -1,0 +1,33 @@
+local equiped = nil
+
+Client.OnStart = function()
+	local stick = Shape(Items.zabath.wood_stick_1)
+	stick:SetParent(Map)
+	stick.Physics = true
+      dropPlayer()
+	stick.Position = Player.Position
+	stick.Scale = 0.1
+end
+
+Client.Action3 = function()
+    local impact = Player:CastRay(Object.CollisionGroups)
+    if impact.Object ~= nil and impact.Object ~= Map and impact.Distance <= 16 then
+		if equipped ~= nil then
+			equipped:SetParent(Map)
+			equipped.LocalPosition = impact.Object.LocalPosition
+			equipped.Rotation = Number3(0, 0, 0)
+			equipped.Scale = 1
+			equipped.Physics = true
+			equipped.CollisionGroups = Map.CollisionGroups
+			equipped.CollidesWithGroups = Map.CollidesWithGroups
+		end
+		equipped = impact.Object
+		equipped:SetParent(Player.RightHand)
+		equipped.LocalRotation.X = math.pi / 1.5
+		equipped.LocalPosition = {4, 2.5, 7}
+		equipped.CollisionGroups = nil
+		equipped.Scale = 1
+		equipped.CollidesWithGroups = nil
+		equipped.Physics = false
+    end
+end
