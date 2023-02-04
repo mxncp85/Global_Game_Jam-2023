@@ -12,6 +12,10 @@ Client.OnStart = function()
 	monsters = {} -- no monsters at start
 	killedMonsters = {} -- recycle bin
 
+    kPlayerHeight = 10.5 -- 2.1 map cubes
+	kPlayerHalfWidth = 2.0
+	kPlayerHalfDepth = 2.0
+
     function collides(shape)
 		
 		local playerMin = Number3(Player.Position.X - kPlayerHalfWidth,
