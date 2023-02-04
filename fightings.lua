@@ -48,6 +48,31 @@ Client.Action2 = function()
       end)
   end
   
-Client.Action3 = function()
-    Player:SwingRight()
-end
+  Client.Action3 = function()
+    timerAnimLeftHandEnd = Timer(0.1, false, function()
+    end)
+      Player.LeftArm.LocalRotation.Z = 3 * math.pi / 2
+      Player.LeftHand.LocalRotation.X = math.pi
+      Player.LeftArm.LocalRotation.X = math.pi / 6
+      Player.LeftArm.dt = 0.0
+      local animTime = 0.2
+  
+      Player.LeftArm.Tick = function(o, dt)
+          o.dt = o.dt + dt
+          local pct = o.dt / animTime
+          if pct >= 1.0 then
+              pct = 1.0
+          end
+  
+          pct = pct ^ 4
+          o.LocalRotation.X = math.pi / 6
+          o.LocalRotation.Z = ((3 * math.pi)/2) - (math.pi / 2.5) * 2.5 * -pct
+      end
+  
+  -- Position de fin du bras du player (a voir)
+      timerAnimLeftHandEnd = Timer(0.1, false, function()
+          Player.LeftArm.LocalRotation.Z = math.pi / 2.5
+          Player.LeftArm.LocalRotation.Y = 0
+          Player.LeftHand.LocalRotation.X = math.pi
+      end)
+  end
