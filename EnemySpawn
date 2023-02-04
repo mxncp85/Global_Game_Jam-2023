@@ -1,0 +1,178 @@
+Config = {
+    Map = "tetabulle.map",
+	Items = {
+		"olivbleu.termite"
+	}
+}
+
+local timecount = 0
+local time = 0
+local spawn_dist = 2
+local species = {}
+local enemyGroupList = {}
+
+Client.OnStart = function()
+	-- Une table d'objets/structures identifiees par leur nom(string) et possedant 
+	-- Un number3 (pour coodorne spawn origin), une array d'objets termite
+	-- Objets termite contenant objet type et number niveau
+	-- Objet type contient Shape, number vie, number vitesse, number degats
+	local speciesNames = {
+			"Termite Soldier",
+			"Termite Worker",
+			"Winged Termite",
+			"King",
+			"Queen"
+    }
+	initSpecies = function(nb)
+		for i = 1, nb do
+			local s = Object()
+			s.life = 1
+			s.speed = 1
+			s.damage = 1
+			s.specie = "Name"
+			table.insert(species, s)
+			species[i].name = speciesNames[i]
+		end
+		--Fonction pour set chaque spawngroup en fonction de leur name et des autres chiffres entres en params
+		setSpecies = function(name, life, speed, damage)
+			for i = 1, nb do
+				if species[i].name == name then
+					species[i].life = life
+					species[i].speed = speed
+					species[i].damage = damage
+				end
+			end
+		end
+		setSpecies("Termite Soldier", 2, 1, 2)
+		setSpecies("Termite Worker", 1, 2, 1)
+		setSpecies("Winged Termite", 2, 3, 1)
+		setSpecies("King", 5, 4, 5)
+		setSpecies("Queen", 4, 5, 4)
+	end
+
+	local groupNames = {
+			"House",
+			"Garden",
+			"Street",
+			"Tree"
+	}
+
+	initEnemyGroupList = function(nb)
+		for i = 1, nb do
+			local group = Object()
+			group.name = groupNames[i]
+			group.pos = Number3(0, 0, 0)
+			group.enemyList = {}
+			group.nb = 1
+			table.insert(enemyGroupList, group)
+			enemyGroupList[i].name = groupNames[i]
+		end
+
+		setEnemyGroupList = function(name, pos, number)
+			for i = 1, nb do
+				if enemyGroupList[i].name == name then
+					enemyGroupList[i].pos = pos
+					enemyGroupList[i].nb = number
+				end
+			end
+		end
+		setEnemyGroupList("House", Number3(1, 1, 1), 1)
+		setEnemyGroupList("Garden", Number3(2, 2, 2), 2)
+		setEnemyGroupList("Street", Number3(-1, -1, -1), 2)
+		setEnemyGroupList("Tree", Number3(-2, -2, -2), 3)
+	end
+
+    initEnemyList = function(name)
+		for i = 1, 4 do
+			if enemyGroupList[i].name == name then
+				gid = i
+			end
+		end
+		for i = 1, enemyGroupList[gid].nb do
+			local enemy = Shape(Items.olivbleu.termite)
+			enemy.specie = "Termite Worker"
+			enemy.life = 1
+			enemy.damage = 1
+			enemy.speed = 1
+			enemy.pos = Number3(enemyGroupList[gid].pos.X + i, enemyGroupList[gid].pos.Y + i, enemyGroupList[gid].pos.Z + i)
+			table.insert(enemyGroupList[gid].enemyList, enemy)
+		end
+	end
+
+
+	setEnemy = function(group, number, specie)
+		for i = 1, 4 do
+			if enemyGroupList[i].name == group then
+				gid = i
+			end
+		end
+		for i = 1, 5 do
+			if species[i].name == specie then
+				enemyGroupList[gid].enemyList[number].life = species[i].life
+				enemyGroupList[gid].enemyList[number].damage = species[i].damage
+				enemyGroupList[gid].enemyList[number].speed = species[i].speed
+				enemyGroupList[gid].enemyList[number].name = species[i].name
+			end
+		end
+	end
+    -- Defines a function to drop
+    -- the player above the map.
+    dropPlayer = function()
+        Player.Position = Number3(Map.Width * 0.5, Map.Height + 10, Map.Depth * 0.5) * Map.Scale
+        Player.Rotation = { 0, 0, 0 }
+        Player.Velocity = { 0, 0, 0 }
+    end
+
+    World:AddChild(Player)
+
+    -- Call dropPlayer function:
+    dropPlayer()
+	initSpecies(5)
+	initEnemyGroupList(4)
+	initEnemyList("House")
+	initEnemyList("Garden")
+	initEnemyList("Street")
+	initEnemyList("Tree")
+	setEnemy("House", 1, "Termite Soldier")
+	setEnemy("Garden", 1, "Termite Soldier")
+	setEnemy("Garden", 2, "Termite Worker")
+	setEnemy("Street", 1, "Termite Worker")
+	setEnemy("Street", 2, "Winged Termite")
+	setEnemy("Tree", 1, "King")
+	setEnemy("Tree", 2, "Termite Soldier")
+	setEnemy("Tree", 3, "Termite Soldier")
+	print(enemyGroupList[1].name)
+	print(enemyGroupList[1].enemyList[1].name)
+	print(enemyGroupList[1].enemyList[1].damage)
+end
+
+Client.Tick = function(dt)
+    -- Game loop, executed ~30 times per second on each client.
+
+    -- Detect if player is falling,
+    -- drop it above the map when it happens.
+    if Player.Position.Y < -500 then
+        dropPlayer()
+        Player:TextBubble("💀 Oops!")
+    end
+end
+
+-- jump function, triggered with Action1
+Client.Action1 = function()
+    if Player.IsOnGround then
+        Player.Velocity.Y = 100
+    end
+end
+
+--
+-- Server code
+--
+
+Server.Tick = function(dt)
+	if timecount == 30 then
+		time = time + 1
+		timecount = 0
+	end
+    timecount = timecount + 1
+    -- Server game loop, executed ~30 times per second on the server.
+end
