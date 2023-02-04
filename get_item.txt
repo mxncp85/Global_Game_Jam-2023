@@ -1,30 +1,53 @@
-local equiped = nil
+local equipped = nil
+local stick = Shape(Items.zabath.wood_stick_1)
 
 Client.OnStart = function()
-	local stick = Shape(Items.zabath.wood_stick_1)
 	stick:SetParent(Map)
+	needle:SetParent(Map)
+	stick.attack = 2
+	needle.attack = 2
 	stick.Physics = true
-      dropPlayer()
-	stick.Position = Player.Position
+	needle.Physics = true
+	stick.Position = Player.LocalPosition
+	needle.Position = Player.LocalPosition
 	stick.Scale = 0.1
+	needle.Scale = 0.15
+end
+
+Client.Action2 = function()
+	local impact = Player:CastRay(target)
+	if impact.Object ~= nil and impact.Distance <= 16 then
+	    if impact.Object.lp > 0 then
+			impact.Object.lp = impact.Object.lp - equipped.attack
+			if impact.Object.lp <= 0 then
+				impact.Object:RemoveFromParent()
+			end
+		end
+	end
 end
 
 Client.Action3 = function()
     local impact = Player:CastRay(Object.CollisionGroups)
-    if impact.Object ~= nil and impact.Object ~= Map and impact.Distance <= 16 then
+    if impact.Object ~= nil and impact.Object ~= Map and impact.Distance <= 16 then--and impact.Object == stick then
 		if equipped ~= nil then
 			equipped:SetParent(Map)
 			equipped.LocalPosition = impact.Object.LocalPosition
 			equipped.Rotation = Number3(0, 0, 0)
-			equipped.Scale = 1
+			if equipped.attack == 2 then
+				equipped.Scale = 0.1
+			end
+			if equipped.attack == 3 then
+				equipped.Scale = 0.15
+			end
 			equipped.Physics = true
-			equipped.CollisionGroups = Map.CollisionGroups
-			equipped.CollidesWithGroups = Map.CollidesWithGroups
+			equipped.CollisionGroups = Map.CollidesWithGroups
+			equipped.CollidesWithGroups = Map.CollisionGroups
 		end
-		equipped = impact.Object
+		equipped = impact.Object	
 		equipped:SetParent(Player.RightHand)
-		equipped.LocalRotation.X = math.pi / 1.5
-		equipped.LocalPosition = {4, 2.5, 7}
+		equipped.LocalRotation.Z = math.pi / 1.5
+		equipped.LocalRotation.Y = -math.pi / 3
+		equipped.LocalPosition = {1, 3, 10}
 		equipped.CollisionGroups = nil
 		equipped.Scale = 1
 		equipped.CollidesWithGroups = nil
